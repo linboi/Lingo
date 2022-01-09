@@ -1,4 +1,5 @@
-from random import randint
+import random
+import time
 
 def checkLetters(guess, solution):
 	if len(solution) != len(guess):
@@ -17,19 +18,24 @@ def checkLetters(guess, solution):
 			result[i] = 1
 	return result
 
-def round():
+def round(seed=213):
+	#random.seed(seed)
+	start = time.time()
 	with open('words.txt', 'r') as file:
 		lines = file.readlines()
-	sol = lines[(randint(0, len(lines)))]
+	sol = lines[(random.randint(0, len(lines)))]
 	sol = sol[:-1]
 	print(sol[0] + "  " + "_  "*(len(sol)-1))
 	playing = True
+	atts = 0
 	while playing:
 		badInput = True
 		while badInput:
 			guess = input()
 			if len(guess) == len(sol):
 				badInput = False
+				atts += 1
+				print(" " + "  ".join(list(guess)))
 			else:
 				print("Wrong word length")
 		att = checkLetters(guess, sol)
@@ -40,22 +46,25 @@ def round():
 				prompt += sol[i] + "  "
 			else:
 				prompt += "_  "
+
+		if len(set(att))==1:
+			print("You win")
+			print("Your time: ", (time.time()-start))
+			return True
+		#elif 
 		print(prompt)
 			
 
 def prune():
-	def pruneCondition(line):
-		for c in line:
-				if c != '\n' and (c < 'a' or c > 'z'):
-					return True
-		return False
+	def keepCondition(line):
+		return (len(line) < 8 and len(line) > 4)
 	linesNew = []
-	with open('words.txt', 'r') as file:
+	with open('wordlist.txt', 'r') as file:
 		lines = file.readlines()
 		for line in lines:
-			if not pruneCondition(line):
+			if keepCondition(line):
 				linesNew.append(line)
-	with open('wordsNew.txt', 'w') as newFile:
+	with open('bigshmoke.txt', 'w') as newFile:
 		newFile.writelines(linesNew)
 
 
