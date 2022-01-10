@@ -1,5 +1,7 @@
 import random
 import time
+import discord
+from config import token
 
 def checkLetters(guess, solution):
 	if len(solution) != len(guess):
@@ -54,6 +56,22 @@ def round(seed=213):
 		#elif 
 		print(prompt)
 			
+async def discordRound(client, channel, author):
+	with open('words.txt', 'r') as file:
+		lines = file.readlines()
+	sol = lines[(random.randint(0, len(lines)))]
+	sol = sol[:-1]
+	await channel.send(("```" + sol[0] + "  " + "_  "*(len(sol)-1) + "```"))
+	playing = True
+
+	def check(message):
+		if message.author.id == author and len(message.content) == len(sol):
+			return True
+		return False
+	while playing:
+		message = await client.wait_for('message', check=check)
+		print(checkLetters(message.content, sol))
+
 
 def prune():
 	def keepCondition(line):
@@ -68,8 +86,23 @@ def prune():
 		newFile.writelines(linesNew)
 
 
+class MyClient(discord.Client):
+	async def on_ready(self):
+		print('Logged on as {0}!'.format(self.user))
+
+	async def on_message(self, message):
+		if message.author.bot:
+			return
+		if(message.content.lower().startswith("!lingo") or message.content.lower().startswith("!wordle")):
+			await discordRound(self, message.channel, message.author.id)
+
 def main():
-	round()
+	intents = discord.Intents.default()
+	intents.members = True
+
+	client = MyClient(intents=intents)
+
+	client.run(token)
 
 if __name__ == '__main__':
 	main()
