@@ -3,10 +3,40 @@ import time
 import discord
 from config import token
 
+emojiLetters = { 
+"a":"🇦",
+"b":"🇧",
+"c":"🇨",
+"d":"🇩",
+"e":"🇪",
+"f":"🇫",
+"g":"🇬",
+"h":"🇭",
+"i":"🇮",
+"j":"🇯",
+"k":"🇰",
+"l":"🇱",
+"m":"🇲",
+"n":"🇳",
+"o":"🇴",
+"p":"🇵",
+"q":"🇶",
+"r":"🇷",
+"s":"🇸",
+"t":"🇹",
+"u":"🇺",
+"v":"🇻",
+"w":"🇼",
+"x":"🇽",
+"y":"🇾",
+"z":"🇿"
+}
+
 def checkLetters(guess, solution):
 	if len(solution) != len(guess):
 		return -1 # undefined behaviour
 
+	guess = guess.lower()
 	result = [2] + [0]*(len(solution)-1) # 0 = no match, 1 = wrong position, 2 = match
 	unmatchedLetters = []
 	for i in range(len(solution)):
@@ -59,18 +89,60 @@ def round(seed=213):
 async def discordRound(client, channel, author):
 	with open('words.txt', 'r') as file:
 		lines = file.readlines()
+	with open('scrabbleWords.txt', 'r') as file:
+		possibleWords = file.readlines()
 	sol = lines[(random.randint(0, len(lines)))]
 	sol = sol[:-1]
-	await channel.send(("```" + sol[0] + "  " + "_  "*(len(sol)-1) + "```"))
+	await channel.send(("" + sol[0] + "  " + "\\_  "*(len(sol)-1) + ""))
 	playing = True
-
+	atts = 0
+	attemptGraph = ""
 	def check(message):
 		if message.author.id == author and len(message.content) == len(sol):
 			return True
 		return False
+
+	start = time.time()
 	while playing:
-		message = await client.wait_for('message', check=check)
-		print(checkLetters(message.content, sol))
+		response = ""
+		badInput = True
+		while badInput:
+			guess = await client.wait_for('message', check=check)
+			guess = guess.content.lower()
+			if len(guess) == len(sol) and (guess.upper() + '\n') in possibleWords:
+				badInput = False
+				atts += 1
+				response += " "
+				for c in guess:
+					if c >= 'a' and c <= 'z':
+						response += emojiLetters[c] + " "
+				response += ("\n")
+			else:
+				await channel.send("Wrong word length or not a word idk")
+		att = checkLetters(guess, sol)
+		correctLetters = ""
+		for num in att:
+			if num == 2:
+				correctLetters += '🟩 '
+			if num == 1:
+				correctLetters += '🟨 '
+			if num == 0:
+				correctLetters += '🟥 '
+		response += correctLetters + "\n"
+		attemptGraph += correctLetters + "\n"
+		for i in range(len(sol)):
+			if att[i] == 2:
+				response += sol[i] + "  "
+			else:
+				response += " \\_    "
+
+		if len(set(att))==1:
+			endMessage = "```Attempts: " + str(atts) + "\n" + attemptGraph + "```"
+			await channel.send("You win\n" + endMessage)
+			await channel.send("Your time: " + str(time.time()-start))
+			return True
+		#elif 
+		await channel.send("" + response + "")
 
 
 def prune():
