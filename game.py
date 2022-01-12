@@ -87,6 +87,7 @@ def round(seed=213):
 		print(prompt)
 			
 async def discordRound(client, channel, author):
+	print("Started round with: " + str(author.name))
 	with open('words.txt', 'r') as file:
 		lines = file.readlines()
 	with open('scrabbleWords.txt', 'r') as file:
@@ -98,7 +99,7 @@ async def discordRound(client, channel, author):
 	atts = 0
 	attemptGraph = ""
 	def check(message):
-		if message.author.id == author and len(message.content) == len(sol):
+		if message.author.id == author.id and len(message.content) == len(sol):
 			return True
 		return False
 
@@ -166,7 +167,7 @@ class MyClient(discord.Client):
 		if message.author.bot:
 			return
 		if(message.content.lower().startswith("!lingo") or message.content.lower().startswith("!wordle")):
-			await discordRound(self, message.channel, message.author.id)
+			await discordRound(self, message.channel, message.author)
 
 def main():
 	intents = discord.Intents.default()
