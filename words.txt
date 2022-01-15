@@ -453,7 +453,6 @@ effect
 element
 energy
 engine
-England
 English
 example
 express
@@ -590,7 +589,6 @@ beach
 afford
 settle
 passion
-Friday
 natural
 saving
 suggest
@@ -795,7 +793,6 @@ shift
 plate
 trapped
 argue
-Sunday
 settled
 package
 disease
@@ -813,13 +810,11 @@ snake
 rescue
 lover
 fantasy
-Europe
 suffer
 cancel
 prepare
 wheel
 crisis
-Monday
 toilet
 eleven
 popular
@@ -838,7 +833,6 @@ butter
 carrot
 alcohol
 tennis
-Tuesday
 theatre
 ninety
 guide
@@ -920,7 +914,6 @@ naughty
 nearby
 network
 nicely
-no way
 object
 observe
 obtain
@@ -1013,7 +1006,6 @@ useful
 visual
 volume
 youth
-T-shirt
 apricot
 beetle
 bracket
@@ -1176,7 +1168,6 @@ highest
 gross
 golden
 badge
-Italian
 studio
 frozen
 trunk
@@ -1317,7 +1308,6 @@ kidney
 essay
 jeans
 terror
-October
 blink
 abroad
 absorb
@@ -1533,7 +1523,6 @@ vital
 widely
 whisper
 dialect
-e-book
 hearty
 jockey
 mania
@@ -1564,7 +1553,6 @@ madam
 cowboy
 concept
 trauma
-Russian
 furious
 cheat
 approve
@@ -1575,7 +1563,6 @@ bargain
 tragic
 punish
 insult
-British
 worthy
 serving
 polite
@@ -1587,7 +1574,6 @@ dated
 robbery
 beast
 struck
-Italy
 bizarre
 scaring
 focused
@@ -1598,7 +1584,6 @@ picnic
 wives
 stink
 recent
-Jewish
 filling
 cruise
 cottage
@@ -1708,7 +1693,6 @@ tattoo
 parole
 ditch
 bulldog
-Spanish
 thirsty
 skull
 scotch
@@ -1874,7 +1858,6 @@ medium
 liking
 develop
 dearest
-April
 puzzle
 caller
 wizard
@@ -2001,7 +1984,7 @@ rally
 pledge
 nursery
 louder
-ignate
+ignite
 fabric
 distant
 bustle
@@ -2040,7 +2023,6 @@ scent
 fleet
 sketch
 outer
-January
 maximum
 speaker
 tease
@@ -2256,7 +2238,6 @@ cattle
 caught
 caution
 cellar
-Celsius
 censor
 chalk
 chilly
@@ -2353,7 +2334,6 @@ lottery
 lumber
 lying
 lyrics
-made-up
 March
 married
 meadow
@@ -2540,7 +2520,6 @@ pursuit
 greedy
 spine
 shotgun
-fiancé
 theft
 scissor
 porter
@@ -2899,7 +2878,6 @@ bruised
 arctic
 mocking
 tribute
-café
 allergy
 await
 ambush
@@ -2953,7 +2931,6 @@ cremate
 polar
 intrude
 greens
-diabete
 pronoun
 pottery
 obscene
@@ -3065,7 +3042,7 @@ uphill
 usage
 utmost
 tariff
-tea-pot
+teapot
 tedious
 tendon
 textile
@@ -3122,7 +3099,6 @@ barren
 barter
 beech
 bereave
-berch
 birch
 bladder
 bleat
@@ -3336,7 +3312,6 @@ reptile
 repulse
 revolt
 ripple
-roadmap
 rotate
 rouge
 savour
@@ -3476,7 +3451,6 @@ crunch
 cramp
 corny
 bitten
-multi
 hiking
 hatchet
 biopsy
@@ -3600,7 +3574,7 @@ dagger
 cruelty
 alias
 aging
-zomby
+zesty
 oddly
 hurtful
 helper
@@ -3854,7 +3828,6 @@ cryptic
 creed
 condemn
 clipper
-cliché
 clarity
 banish
 argon
@@ -4057,7 +4030,6 @@ broth
 buckle
 bulging
 callous
-caprize
 caraway
 coexist
 cower
@@ -4112,7 +4084,6 @@ ferment
 fervent
 fidget
 fiery
-Finnish
 flicker
 flimsy
 flint
@@ -4195,7 +4166,6 @@ mince
 mirth
 mitten
 morsel
-montley
 muffle
 mumble
 mural
@@ -4429,7 +4399,6 @@ blindly
 bloat
 blotch
 blubber
-bluffy
 bluish
 bluster
 borough
@@ -4573,7 +4542,6 @@ harden
 hardily
 heady
 heiress
-hermic
 hiccup
 hobble
 hugely
@@ -4724,7 +4692,7 @@ replica
 repose
 reprove
 repute
-resedue
+residue
 revert
 revoke
 revolve
