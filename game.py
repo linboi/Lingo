@@ -2,6 +2,7 @@ import random
 import time
 import discord
 from config import token
+import sys
 
 emojiLetters = { 
 "a":"🇦",
@@ -86,12 +87,13 @@ def round(seed=213):
 		#elif 
 		print(prompt)
 			
-async def discordRound(client, channel, author):
+async def discordRound(client, channel, author, lines, possibleWords, seed=None):
+	wasChosen = True
+	if(seed==None):
+		seed = random.randrange(sys.maxsize)
+		wasChosen = False
+	random.seed(seed)
 	print("Started round with: " + str(author.name))
-	with open('words.txt', 'r') as file:
-		lines = file.readlines()
-	with open('scrabbleWords.txt', 'r') as file:
-		possibleWords = file.readlines()
 	sol = lines[(random.randint(0, len(lines)))]
 	sol = sol[:-1]
 	await channel.send(("" + sol[0] + "  " + "\\_  "*(len(sol)-1) + ""))
@@ -138,7 +140,7 @@ async def discordRound(client, channel, author):
 				response += " \\_    "
 
 		if len(set(att))==1:
-			endMessage = "```Attempts: " + str(atts) + "\n" + attemptGraph + "```"
+			endMessage = "```Attempts: " + str(atts) + "\n" + attemptGraph + "\nSeed: " + str(seed) + " Was seeded: " + str(wasChosen) + "```"
 			await channel.send("You win\n" + endMessage)
 			await channel.send("Your time: " + str(time.time()-start))
 			return True
@@ -161,13 +163,22 @@ def prune():
 
 class MyClient(discord.Client):
 	async def on_ready(self):
+		with open('words.txt', 'r') as file:
+			self.lines = file.readlines()
+		with open('scrabbleWords.txt', 'r') as file:
+			self.possibleWords = file.readlines()
 		print('Logged on as {0}!'.format(self.user))
 
 	async def on_message(self, message):
 		if message.author.bot:
 			return
 		if(message.content.lower().startswith("!lingo") or message.content.lower().startswith("!wordle")):
-			await discordRound(self, message.channel, message.author)
+			if len(message.content.split()) == 1:
+				await discordRound(self, message.channel, message.author, self.lines, self.possibleWords)
+			else:
+				parts = message.content.split()
+				await discordRound(self, message.channel, message.author, self.lines, self.possibleWords, seed=int(parts[1]))
+				
 
 def main():
 	intents = discord.Intents.default()
