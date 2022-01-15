@@ -149,10 +149,8 @@ async def discordRound(client, channel, author, lines, possibleWords, seed=None)
 		for i in range(len(sol)):
 			if att[i] == 2:
 				foundLetters[i] = sol[i]
-				#response += sol[i] + "  "
 			else:
 				won = False
-				#response += " \\_    "
 		for c in foundLetters:
 			response += c + "    "
 		if won:
