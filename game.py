@@ -3,6 +3,7 @@ import time
 import discord
 from config import token
 import sys
+import string
 
 emojiLetters = { 
 "a":"🇦",
@@ -94,6 +95,9 @@ async def discordRound(client, channel, author, lines, possibleWords, seed=None)
 		wasChosen = False
 	random.seed(seed)
 	print("Started round with: " + str(author.name))
+	attemptedLetters = {}
+	for c in string.ascii_lowercase:
+		attemptedLetters[c] = False
 	sol = lines[(random.randint(0, len(lines)))]
 	sol = sol[:-1]
 	await channel.send(("" + sol[0] + "  " + "\\_  "*(len(sol)-1) + ""))
@@ -117,6 +121,8 @@ async def discordRound(client, channel, author, lines, possibleWords, seed=None)
 				atts += 1
 				response += " "
 				for c in guess:
+					if c not in sol:
+						attemptedLetters[c] = True
 					if c >= 'a' and c <= 'z':
 						response += emojiLetters[c] + " "
 				response += ("\n")
@@ -145,6 +151,10 @@ async def discordRound(client, channel, author, lines, possibleWords, seed=None)
 			await channel.send("Your time: " + str(time.time()-start))
 			return True
 		#elif 
+		response += "\n"
+		for c in attemptedLetters:
+			if not attemptedLetters[c]:
+				response += c
 		await channel.send("" + response + "")
 
 
