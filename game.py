@@ -156,9 +156,9 @@ async def discordRound(client, channel, author, lines, possibleWords, seed=None)
 		for c in foundLetters:
 			response += c + "    "
 		if won:
-			endMessage = "```Attempts: " + str(atts) + "\n" + attemptGraph + "\nSeed: " + str(seed) + " Was seeded: " + str(wasChosen) + "```"
-			await channel.send("You win\n" + endMessage)
-			await channel.send("Your time: " + str(time.time()-start))
+			endMessage = "Attempts: " + str(atts) + "\n" + attemptGraph + "\nSeed: " + str(seed) + " Was seeded: " + str(wasChosen)
+			await channel.send("You win\n")
+			await channel.send("```" + endMessage + "\nYour time: " + str(time.time()-start) + "```")
 			return True
 		#elif 
 		response += "\n"
