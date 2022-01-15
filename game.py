@@ -39,7 +39,7 @@ def checkLetters(guess, solution):
 		return -1 # undefined behaviour
 
 	guess = guess.lower()
-	result = [2] + [0]*(len(solution)-1) # 0 = no match, 1 = wrong position, 2 = match
+	result = [0]*(len(solution)) # 0 = no match, 1 = wrong position, 2 = match
 	unmatchedLetters = []
 	for i in range(len(solution)):
 		if guess[i] == solution[i]:
@@ -50,6 +50,7 @@ def checkLetters(guess, solution):
 	for i in range(len(solution)):
 		if result[i] != 2 and guess[i] in unmatchedLetters:
 			result[i] = 1
+			unmatchedLetters.remove(guess[i])
 	return result
 
 def round(seed=213):
@@ -100,6 +101,11 @@ async def discordRound(client, channel, author, lines, possibleWords, seed=None)
 		attemptedLetters[c] = False
 	sol = lines[(random.randint(0, len(lines)))]
 	sol = sol[:-1]
+	foundLetters = []
+	foundLetters.append(sol[0])
+	for i in range(len(sol)-1):
+		foundLetters.append("\\_")
+	#foundLetters = list(sol[0] + ("\\_")*(len(sol)-2))
 	await channel.send(("" + sol[0] + "  " + "\\_  "*(len(sol)-1) + ""))
 	playing = True
 	atts = 0
@@ -139,13 +145,17 @@ async def discordRound(client, channel, author, lines, possibleWords, seed=None)
 				correctLetters += '🟥 '
 		response += correctLetters + "\n"
 		attemptGraph += correctLetters + "\n"
+		won = True
 		for i in range(len(sol)):
 			if att[i] == 2:
-				response += sol[i] + "  "
+				foundLetters[i] = sol[i]
+				#response += sol[i] + "  "
 			else:
-				response += " \\_    "
-
-		if len(set(att))==1:
+				won = False
+				#response += " \\_    "
+		for c in foundLetters:
+			response += c + "    "
+		if won:
 			endMessage = "```Attempts: " + str(atts) + "\n" + attemptGraph + "\nSeed: " + str(seed) + " Was seeded: " + str(wasChosen) + "```"
 			await channel.send("You win\n" + endMessage)
 			await channel.send("Your time: " + str(time.time()-start))
