@@ -92,6 +92,7 @@ def round(seed=213):
 async def discordRound(client, channel, author, lines, possibleWords, seed=None):
 	wasChosen = True
 	if(seed==None):
+		random.seed(time.time())
 		seed = random.randrange(sys.maxsize)
 		wasChosen = False
 	random.seed(seed)
@@ -105,8 +106,8 @@ async def discordRound(client, channel, author, lines, possibleWords, seed=None)
 	foundLetters.append(sol[0])
 	for i in range(len(sol)-1):
 		foundLetters.append("\\_")
-	#foundLetters = list(sol[0] + ("\\_")*(len(sol)-2))
-	await channel.send(("" + sol[0] + "  " + "\\_  "*(len(sol)-1) + ""))
+	
+	await channel.send(("" + sol[0] + "  " + "\\_  "*(len(sol)-1) + "\nSeed: " + str(seed) + ""))
 	playing = True
 	atts = 0
 	attemptGraph = ""
