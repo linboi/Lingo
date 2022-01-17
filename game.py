@@ -58,7 +58,7 @@ def round(seed=213):
 	start = time.time()
 	with open('words.txt', 'r') as file:
 		lines = file.readlines()
-	sol = lines[(random.randint(0, len(lines)))]
+	sol = lines[(random.randint(0, len(lines)))].lower()
 	sol = sol[:-1]
 	print(sol[0] + "  " + "_  "*(len(sol)-1))
 	playing = True
@@ -89,7 +89,7 @@ def round(seed=213):
 		#elif 
 		print(prompt)
 			
-async def discordRound(client, channel, author, lines, possibleWords, seed=None):
+async def discordRound(client, channel, author, seed=None):
 	wasChosen = True
 	if(seed==None):
 		random.seed(time.time())
@@ -100,7 +100,7 @@ async def discordRound(client, channel, author, lines, possibleWords, seed=None)
 	attemptedLetters = {}
 	for c in string.ascii_lowercase:
 		attemptedLetters[c] = False
-	sol = lines[(random.randint(0, len(lines)))]
+	sol = random.choice(client.lines)
 	sol = sol[:-1]
 	foundLetters = []
 	foundLetters.append(sol[0])
@@ -123,13 +123,11 @@ async def discordRound(client, channel, author, lines, possibleWords, seed=None)
 		while badInput:
 			guess = await client.wait_for('message', check=check)
 			guess = guess.content.lower()
-			if len(guess) == len(sol) and (guess.upper() + '\n') in possibleWords:
+			if len(guess) == len(sol) and (guess.upper() + '\n') in client.possibleWords:
 				badInput = False
 				atts += 1
 				response += " "
 				for c in guess:
-					if c not in sol:
-						attemptedLetters[c] = True
 					if c >= 'a' and c <= 'z':
 						response += emojiLetters[c] + " "
 				response += ("\n")
@@ -137,13 +135,14 @@ async def discordRound(client, channel, author, lines, possibleWords, seed=None)
 				await channel.send("Wrong word length or not a word idk")
 		att = checkLetters(guess, sol)
 		correctLetters = ""
-		for num in att:
+		for idx, num in enumerate(att):
 			if num == 2:
 				correctLetters += '🟩 '
 			if num == 1:
 				correctLetters += '🟨 '
 			if num == 0:
 				correctLetters += '🟥 '
+				attemptedLetters[guess[idx]] = True
 		response += correctLetters + "\n"
 		attemptGraph += correctLetters + "\n"
 		won = True
@@ -193,10 +192,10 @@ class MyClient(discord.Client):
 			return
 		if(message.content.lower().startswith("!lingo") or message.content.lower().startswith("!wordle")):
 			if len(message.content.split()) == 1:
-				await discordRound(self, message.channel, message.author, self.lines, self.possibleWords)
+				await discordRound(self, message.channel, message.author)
 			else:
 				parts = message.content.split()
-				await discordRound(self, message.channel, message.author, self.lines, self.possibleWords, seed=int(parts[1]))
+				await discordRound(self, message.channel, message.author, seed=int(parts[1]))
 				
 
 def main():

@@ -2732,7 +2732,6 @@ shred
 rethink
 pistol
 leash
-hearted
 flown
 feast
 extent
@@ -4495,7 +4494,6 @@ excrete
 facile
 falsify
 feint
-fervid
 fetid
 feudal
 fickle
