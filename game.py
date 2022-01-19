@@ -100,7 +100,7 @@ async def discordRound(client, channel, author, seed=None):
 	attemptedLetters = {}
 	for c in string.ascii_lowercase:
 		attemptedLetters[c] = False
-	sol = random.choice(client.lines)
+	sol = random.choice(client.lines).lower()
 	sol = sol[:-1]
 	foundLetters = []
 	foundLetters.append(sol[0])
