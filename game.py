@@ -89,7 +89,7 @@ def round(seed=213):
 		#elif 
 		print(prompt)
 			
-async def discordRound(client, channel, author, seed=None):
+async def discordRound(client, channel, author, seed=None, hardmode=False):
 	wasChosen = True
 	if(seed==None):
 		random.seed(time.time())
@@ -100,7 +100,10 @@ async def discordRound(client, channel, author, seed=None):
 	attemptedLetters = {}
 	for c in string.ascii_lowercase:
 		attemptedLetters[c] = False
-	sol = random.choice(client.lines).lower()
+	if hardmode:
+		sol = random.choice(client.possibleWords).lower()
+	else:
+		sol = random.choice(client.lines).lower()
 	sol = sol[:-1]
 	foundLetters = []
 	foundLetters.append(sol[0])
@@ -196,6 +199,12 @@ class MyClient(discord.Client):
 			else:
 				parts = message.content.split()
 				await discordRound(self, message.channel, message.author, seed=int(parts[1]))
+		if(message.content.lower().startswith("!dingo") or message.content.lower().startswith("!abecedarian")):
+			if len(message.content.split()) == 1:
+				await discordRound(self, message.channel, message.author, hardmode=True)
+			else:
+				parts = message.content.split()
+				await discordRound(self, message.channel, message.author, seed=int(parts[1]), hardmode=True)
 				
 
 def main():
