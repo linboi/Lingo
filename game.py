@@ -109,8 +109,8 @@ async def lingoRound(client, channel, author, seed=None, hardmode=False):
 	await channel.send("```" + endMessage + "\nYour time: " + "{:.2f}".format(finishTime) + " seconds ```")
 
 async def dailyRound(client, channel, author, seed, hardmode=False):
-	if time.strftime("%a%b%d%Y") != client.date:
-		client.date = time.strftime("%a%b%d%Y")
+	if time.strftime("%a%d%b%Y") != client.date:
+		client.date = time.strftime("%a%d%b%Y")
 		client.leaderboard = []
 	else:
 		for record in client.leaderboard:
@@ -126,7 +126,7 @@ async def dailyRound(client, channel, author, seed, hardmode=False):
 	endMessage = "Attempts: " + str(atts) + "\n" + attemptGraph + "\nDaily " + time.strftime("%a, %d %b, %Y")
 	#await channel.send("```" + endMessage + "\nYour time: " + "{:.2f}".format(finishTime) + " seconds ```")
 	await author.send("```" + endMessage + "\nYour time: " + "{:.2f}".format(finishTime) + " seconds ```")
-	if time.strftime("%a%b%d%Y") == client.date:
+	if time.strftime("%a%d%b%Y") == client.date:
 		client.leaderboard.append((author.name, (atts*100+finishTime)))
 		await displayLeaderboard(client, channel)
 	else:
@@ -255,7 +255,7 @@ class MyClient(discord.Client):
 			self.lines = file.readlines()
 		with open('scrabbleWords.txt', 'r') as file:
 			self.possibleWords = file.readlines()
-		self.date = time.strftime("%a%b%d%Y")
+		self.date = time.strftime("%a%d%b%Y")
 		self.leaderboard = []
 		print('Logged on as {0}!'.format(self.user))
 
@@ -276,7 +276,7 @@ class MyClient(discord.Client):
 				parts = message.content.split()
 				await lingoRound(self, message.channel, message.author, seed=int(parts[1]), hardmode=True)
 		if(message.content.lower().startswith("!daily")):
-			await dailyRound(self, message.channel, message.author, seed=time.strftime("%a%b%d%Y"))
+			await dailyRound(self, message.channel, message.author, seed=time.strftime("%a%d%b%Y"))
 		if(message.content.lower().startswith("!lb") or message.content.lower().startswith("!leaderboard")):
 			await displayLeaderboard(self, message.channel)
 				
