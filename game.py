@@ -89,7 +89,7 @@ def round(seed=213):
 		#elif 
 		print(prompt)
 			
-async def discordRound(client, channel, author, seed=None, hardmode=False):
+async def lingoRound(client, channel, author, seed=None, hardmode=False):
 	wasChosen = True
 	if(seed==None):
 		random.seed(time.time())
@@ -97,28 +97,74 @@ async def discordRound(client, channel, author, seed=None, hardmode=False):
 		wasChosen = False
 	random.seed(seed)
 	print("Started round with: " + str(author.name))
-	attemptedLetters = {}
-	for c in string.ascii_lowercase:
-		attemptedLetters[c] = False
 	if hardmode:
 		sol = random.choice(client.possibleWords).lower()
 	else:
 		sol = random.choice(client.lines).lower()
 	sol = sol[:-1]
+	await channel.send("Seed: " + str(seed))
+	atts, attemptGraph, finishTime = await playRound(client, channel, author, sol)
+	endMessage = "Attempts: " + str(atts) + "\n" + attemptGraph + "\nSeed: " + str(seed) + " Was seeded: " + str(wasChosen)
+	await channel.send("You win\n")
+	await channel.send("```" + endMessage + "\nYour time: " + "{:.2f}".format(finishTime) + " seconds ```")
+
+async def dailyRound(client, channel, author, seed, hardmode=False):
+	if time.strftime("%a%b%d%Y") != client.date:
+		client.date = time.strftime("%a%b%d%Y")
+		client.leaderboard = []
+	else:
+		for record in client.leaderboard:
+			if record[0] == author.name:
+				channel.send("Daily already complete")
+				return
+	random.seed(seed)
+	print("Started daily round with: " + str(author.name))
+	sol = random.choice(client.lines).lower()
+	sol = sol[:-1]
+	atts, attemptGraph, finishTime = await playRound(client, author, author, sol)
+	await author.send("You win\n")
+	endMessage = "Attempts: " + str(atts) + "\n" + attemptGraph + "\nDaily " + time.strftime("%a, %d %b, %Y")
+	#await channel.send("```" + endMessage + "\nYour time: " + "{:.2f}".format(finishTime) + " seconds ```")
+	await author.send("```" + endMessage + "\nYour time: " + "{:.2f}".format(finishTime) + " seconds ```")
+	if time.strftime("%a%b%d%Y") == client.date:
+		client.leaderboard.append((author.name, (atts*100+finishTime)))
+		await displayLeaderboard(client, channel)
+	else:
+		await author.send("Midnight passed during round, score not added to leaderboard")
+
+async def displayLeaderboard(client, channel):
+	def byScore(elem):
+		return elem[1]
+	client.leaderboard.sort(key=byScore)
+	message = "```"
+	if len(client.leaderboard) == 0:
+		message += " "
+	for idx, record in enumerate(client.leaderboard):
+		message += str(idx+1) + ". " + record[0] + "\n"
+	message += "```"
+	await channel.send(message)
+
+async def playRound(client, channel, author, sol):
+	attemptedLetters = {}
+	for c in string.ascii_lowercase:
+		attemptedLetters[c] = False
 	foundLetters = []
 	foundLetters.append(sol[0])
 	for i in range(len(sol)-1):
 		foundLetters.append("\\_")
 	
-	await channel.send(("" + sol[0] + "  " + "\\_  "*(len(sol)-1) + "\nSeed: " + str(seed) + ""))
+	await channel.send((sol[0] + "  " + "\\_  "*(len(sol)-1)))
 	playing = True
 	atts = 0
 	attemptGraph = ""
 	def check(message):
-		if message.author.id == author.id and len(message.content) == len(sol):
+		if message.author.id == author.id and (len(message.content) == len(sol) or message.content.lower().startswith("!quit")):
 			return True
 		return False
 
+	keyboardLineOne = "qwertyuiop"
+	keyboardLineTwo = "asdfghjkl"
+	keyboardLineThree = "zxcvbnm"
 	start = time.time()
 	while playing:
 		response = ""
@@ -126,6 +172,9 @@ async def discordRound(client, channel, author, seed=None, hardmode=False):
 		while badInput:
 			guess = await client.wait_for('message', check=check)
 			guess = guess.content.lower()
+			if guess == "!quit":
+				await channel.send("Word is: " + str(sol))
+				return False
 			if len(guess) == len(sol) and (guess.upper() + '\n') in client.possibleWords:
 				badInput = False
 				atts += 1
@@ -154,18 +203,36 @@ async def discordRound(client, channel, author, seed=None, hardmode=False):
 				foundLetters[i] = sol[i]
 			else:
 				won = False
+
 		for c in foundLetters:
 			response += c + "    "
 		if won:
-			endMessage = "Attempts: " + str(atts) + "\n" + attemptGraph + "\nSeed: " + str(seed) + " Was seeded: " + str(wasChosen)
-			await channel.send("You win\n")
-			await channel.send("```" + endMessage + "\nYour time: " + str(time.time()-start) + "```")
-			return True
+			return (atts, attemptGraph, (time.time()-start))
+			#endMessage = "Attempts: " + str(atts) + "\n" + attemptGraph + "\nSeed: " + str(seed) + " Was seeded: " + str(wasChosen)
+			#await channel.send("You win\n")
+			#await channel.send("```" + endMessage + "\nYour time: " + str(time.time()-start) + "```")
+			#return True
 		#elif 
-		response += "\n"
-		for c in attemptedLetters:
+		response += "\n```"
+		for c in keyboardLineOne:
 			if not attemptedLetters[c]:
-				response += c
+				response += c + " "
+			else:
+				response += "  "
+		response += "\n "
+		for c in keyboardLineTwo:
+			if not attemptedLetters[c]:
+				response += c + " "
+			else:
+				response += "  "
+		response += "\n  "
+		for c in keyboardLineThree:
+			if not attemptedLetters[c]:
+				response += c + " "
+			else:
+				response += "  "
+		response += "```"
+		
 		await channel.send("" + response + "")
 
 
@@ -188,23 +255,30 @@ class MyClient(discord.Client):
 			self.lines = file.readlines()
 		with open('scrabbleWords.txt', 'r') as file:
 			self.possibleWords = file.readlines()
+		self.date = time.strftime("%a%b%d%Y")
+		self.leaderboard = []
 		print('Logged on as {0}!'.format(self.user))
+
 
 	async def on_message(self, message):
 		if message.author.bot:
 			return
 		if(message.content.lower().startswith("!lingo") or message.content.lower().startswith("!wordle")):
 			if len(message.content.split()) == 1:
-				await discordRound(self, message.channel, message.author)
+				await lingoRound(self, message.channel, message.author)
 			else:
 				parts = message.content.split()
-				await discordRound(self, message.channel, message.author, seed=int(parts[1]))
+				await lingoRound(self, message.channel, message.author, seed=int(parts[1]))
 		if(message.content.lower().startswith("!dingo") or message.content.lower().startswith("!abecedarian")):
 			if len(message.content.split()) == 1:
-				await discordRound(self, message.channel, message.author, hardmode=True)
+				await lingoRound(self, message.channel, message.author, hardmode=True)
 			else:
 				parts = message.content.split()
-				await discordRound(self, message.channel, message.author, seed=int(parts[1]), hardmode=True)
+				await lingoRound(self, message.channel, message.author, seed=int(parts[1]), hardmode=True)
+		if(message.content.lower().startswith("!daily")):
+			await dailyRound(self, message.channel, message.author, seed=time.strftime("%a%b%d%Y"))
+		if(message.content.lower().startswith("!lb") or message.content.lower().startswith("!leaderboard")):
+			await displayLeaderboard(self, message.channel)
 				
 
 def main():
