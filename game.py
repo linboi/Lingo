@@ -4,6 +4,7 @@ import discord
 from config import token
 import sys
 import string
+from asyncio import sleep
 
 emojiLetters = { 
 "a":"🇦",
@@ -112,11 +113,15 @@ async def dailyRound(client, channel, author, seed, hardmode=False):
 	if time.strftime("%a%d%b%Y") != client.date:
 		client.date = time.strftime("%a%d%b%Y")
 		client.leaderboard = []
+		client.dailyInProgress = []
 	else:
+		if author.id in client.dailyInProgress:
+			return
 		for record in client.leaderboard:
 			if record[0] == author.name:
-				channel.send("Daily already complete")
+				await channel.send("Daily already complete")
 				return
+	client.dailyInProgress.append(author.id)
 	random.seed(seed)
 	print("Started daily round with: " + str(author.name))
 	sol = random.choice(client.lines).lower()
@@ -257,6 +262,7 @@ class MyClient(discord.Client):
 			self.possibleWords = file.readlines()
 		self.date = time.strftime("%a%d%b%Y")
 		self.leaderboard = []
+		self.dailyInProgress = []
 		print('Logged on as {0}!'.format(self.user))
 
 
@@ -279,7 +285,16 @@ class MyClient(discord.Client):
 			await dailyRound(self, message.channel, message.author, seed=time.strftime("%a%d%b%Y"))
 		if(message.content.lower().startswith("!lb") or message.content.lower().startswith("!leaderboard")):
 			await displayLeaderboard(self, message.channel)
+		#if(message.content.lower().startswith("!test")):
+		#	await testEdit(self, message.channel)
 				
+async def testEdit(client, channel):
+	n = 15
+	msg = await channel.send('🟥'*n)
+	while n > 0:
+		await msg.edit(content=('🟥'*n))
+		n -= 1
+		await sleep(1)
 
 def main():
 	intents = discord.Intents.default()
