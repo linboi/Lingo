@@ -132,7 +132,7 @@ async def dailyRound(client, channel, author, seed, hardmode=False):
 	#await channel.send("```" + endMessage + "\nYour time: " + "{:.2f}".format(finishTime) + " seconds ```")
 	await author.send("```" + endMessage + "\nYour time: " + "{:.2f}".format(finishTime) + " seconds ```")
 	if time.strftime("%a%d%b%Y") == client.date:
-		client.leaderboard.append((author.name, (atts*100+finishTime)))
+		client.leaderboard.append((author.name, (atts*100+finishTime), atts, finishTime))
 		await displayLeaderboard(client, channel)
 	else:
 		await author.send("Midnight passed during round, score not added to leaderboard")
@@ -145,7 +145,7 @@ async def displayLeaderboard(client, channel):
 	if len(client.leaderboard) == 0:
 		message += " "
 	for idx, record in enumerate(client.leaderboard):
-		message += str(idx+1) + ". " + record[0] + "\n"
+		message += str(idx+1) + ". " + record[0].ljust(20, " ") + "att: " + str(record[2]) + ", time: " + "{:.1f}s".format(record[3]) + "\n"
 	message += "```"
 	await channel.send(message)
 
