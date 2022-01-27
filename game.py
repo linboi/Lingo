@@ -163,7 +163,7 @@ async def playRound(client, channel, author, sol):
 	atts = 0
 	attemptGraph = ""
 	def check(message):
-		if message.channel.id == channel.id and message.author.id == author.id and (len(message.content) == len(sol) or message.content.lower().startswith("!quit")):
+		if message.author.id == author.id and (len(message.content) == len(sol) or message.content.lower().startswith("!quit")):
 			return True
 		return False
 
