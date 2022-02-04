@@ -90,7 +90,7 @@ def round(seed=213):
 		#elif 
 		print(prompt)
 			
-async def lingoRound(client, channel, author, seed=None, hardmode=False):
+async def lingoRound(client, channel, author, seed=None, mode=0):
 	wasChosen = True
 	if(seed==None):
 		random.seed(time.time())
@@ -98,8 +98,10 @@ async def lingoRound(client, channel, author, seed=None, hardmode=False):
 		wasChosen = False
 	random.seed(seed)
 	print("Started round with: " + str(author.name))
-	if hardmode:
+	if mode == 2:
 		sol = random.choice(client.possibleWords).lower()
+	elif mode == 1:
+		sol = random.choice(client.mediumDict).lower()
 	else:
 		sol = random.choice(client.lines).lower()
 	sol = sol[:-1]
@@ -250,7 +252,7 @@ def prune():
 		for line in lines:
 			if keepCondition(line):
 				linesNew.append(line)
-	with open('bigshmoke.txt', 'w') as newFile:
+	with open('newWords.txt', 'w') as newFile:
 		newFile.writelines(linesNew)
 
 
@@ -260,6 +262,8 @@ class MyClient(discord.Client):
 			self.lines = file.readlines()
 		with open('scrabbleWords.txt', 'r') as file:
 			self.possibleWords = file.readlines()
+		with open('wordsShort.txt', 'r') as file:
+			self.mediumDict = file.readlines()
 		self.date = time.strftime("%a%d%b%Y")
 		self.leaderboard = []
 		self.dailyInProgress = []
@@ -277,10 +281,16 @@ class MyClient(discord.Client):
 				await lingoRound(self, message.channel, message.author, seed=int(parts[1]))
 		if(message.content.lower().startswith("!dingo") or message.content.lower().startswith("!abecedarian")):
 			if len(message.content.split()) == 1:
-				await lingoRound(self, message.channel, message.author, hardmode=True)
+				await lingoRound(self, message.channel, message.author, mode=2)
 			else:
 				parts = message.content.split()
-				await lingoRound(self, message.channel, message.author, seed=int(parts[1]), hardmode=True)
+				await lingoRound(self, message.channel, message.author, seed=int(parts[1]), mode=2)
+		if(message.content.lower().startswith("!mingo") or message.content.lower().startswith("!abecedarian")):
+			if len(message.content.split()) == 1:
+				await lingoRound(self, message.channel, message.author, mode=1)
+			else:
+				parts = message.content.split()
+				await lingoRound(self, message.channel, message.author, seed=int(parts[1]), mode=1)
 		if(message.content.lower().startswith("!daily")):
 			await dailyRound(self, message.channel, message.author, seed=time.strftime("%a%d%b%Y"))
 		if(message.content.lower().startswith("!lb") or message.content.lower().startswith("!leaderboard")):
