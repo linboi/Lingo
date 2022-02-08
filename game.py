@@ -4,7 +4,8 @@ import discord
 from config import token
 import sys
 import string
-from asyncio import sleep
+import asyncio
+import threading
 
 emojiLetters = { 
 "a":"🇦",
@@ -90,7 +91,7 @@ def round(seed=213):
 		#elif 
 		print(prompt)
 			
-async def lingoRound(client, channel, author, seed=None, mode=0):
+async def lingoRound(client, channel, author, seed=None, mode=0, timed=None):
 	wasChosen = True
 	if(seed==None):
 		random.seed(time.time())
@@ -106,12 +107,12 @@ async def lingoRound(client, channel, author, seed=None, mode=0):
 		sol = random.choice(client.lines).lower()
 	sol = sol[:-1]
 	await channel.send("Seed: " + str(seed))
-	atts, attemptGraph, finishTime = await playRound(client, channel, author, sol)
+	atts, attemptGraph, finishTime = await playRound(client, channel, author, sol, timed=timed)
 	endMessage = "Attempts: " + str(atts) + "\n" + attemptGraph + "\nSeed: " + str(seed) + " Was seeded: " + str(wasChosen)
 	await channel.send("You win\n")
 	await channel.send("```" + endMessage + "\nYour time: " + "{:.2f}".format(finishTime) + " seconds ```")
 
-async def dailyRound(client, channel, author, seed, hardmode=False):
+async def dailyRound(client, channel, author, seed, mode=0, timed=None):
 	if time.strftime("%a%d%b%Y") != client.date:
 		client.date = time.strftime("%a%d%b%Y")
 		client.leaderboard = []
@@ -151,7 +152,7 @@ async def displayLeaderboard(client, channel):
 	message += "```"
 	await channel.send(message)
 
-async def playRound(client, channel, author, sol):
+async def playRound(client, channel, author, sol, timed=None):
 	attemptedLetters = {}
 	for c in string.ascii_lowercase:
 		attemptedLetters[c] = False
@@ -177,21 +178,29 @@ async def playRound(client, channel, author, sol):
 		response = ""
 		badInput = True
 		while badInput:
-			guess = await client.wait_for('message', check=check)
-			guess = guess.content.lower()
-			if guess == "!quit":
-				await channel.send("Word is: " + str(sol))
-				return False
-			if len(guess) == len(sol) and (guess.upper() + '\n') in client.possibleWords:
-				badInput = False
-				atts += 1
-				response += " "
-				for c in guess:
-					if c >= 'a' and c <= 'z':
-						response += emojiLetters[c] + " "
-				response += ("\n")
+			try:
+				#if timed != None:
+				#	t = threading.Thread(target=asyncio.run, args=(testEdit(client, channel),))
+				#	t.start()
+				guess = await client.wait_for('message', check=check, timeout=timed)
+			except asyncio.TimeoutError:
+				await channel.send("Timeout occurred")
+				return
 			else:
-				await channel.send("Wrong word length or not a word idk")
+				guess = guess.content.lower()
+				if guess == "!quit":
+					await channel.send("Word is: " + str(sol))
+					return False
+				if len(guess) == len(sol) and (guess.lower() + '\n') in client.possibleWords:
+					badInput = False
+					atts += 1
+					response += " "
+					for c in guess:
+						if c >= 'a' and c <= 'z':
+							response += emojiLetters[c] + " "
+					response += ("\n")
+				else:
+					await channel.send("Wrong word length or not a word idk")
 		att = checkLetters(guess, sol)
 		correctLetters = ""
 		for idx, num in enumerate(att):
@@ -285,12 +294,18 @@ class MyClient(discord.Client):
 			else:
 				parts = message.content.split()
 				await lingoRound(self, message.channel, message.author, seed=int(parts[1]), mode=2)
-		if(message.content.lower().startswith("!mingo") or message.content.lower().startswith("!abecedarian")):
+		if(message.content.lower().startswith("!mingo")):
 			if len(message.content.split()) == 1:
 				await lingoRound(self, message.channel, message.author, mode=1)
 			else:
 				parts = message.content.split()
 				await lingoRound(self, message.channel, message.author, seed=int(parts[1]), mode=1)
+		if(message.content.lower().startswith("!tingo")):
+			if len(message.content.split()) == 1:
+				await lingoRound(self, message.channel, message.author, mode=0, timed=30)
+			else:
+				parts = message.content.split()
+				await lingoRound(self, message.channel, message.author, seed=int(parts[1]), mode=0, timed=30)
 		if(message.content.lower().startswith("!daily")):
 			await dailyRound(self, message.channel, message.author, seed=time.strftime("%a%d%b%Y"))
 		if(message.content.lower().startswith("!lb") or message.content.lower().startswith("!leaderboard")):
@@ -304,7 +319,7 @@ async def testEdit(client, channel):
 	while n > 0:
 		await msg.edit(content=('🟥'*n))
 		n -= 1
-		await sleep(1)
+		await asyncio.sleep(1)
 
 def main():
 	intents = discord.Intents.default()
